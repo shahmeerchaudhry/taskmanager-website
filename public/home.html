@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -- I know it shows up an ERROR on W3 validation but I need these tags for Bootstrap-->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+
+
+
+    <title>Home Page</title>
+
+
+
+    <!-- Required Stylesheets -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400&display=swap"
+    rel="stylesheet">
+
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"
+    />
+
+   <link
+      type="text/css"
+      rel="stylesheet"
+      href="stylesheets/style.css"
+    />
+
+
+<!-- Required scripts -->
+
+    <script src="https://unpkg.com/vue@latest/dist/vue.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.5.2/vue.min.js"></script>
+
+<!-- CDNJS :: Sortable (https://cdnjs.com/) -->
+<script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+
+<!-- CDNJS :: Vue.Draggable (https://cdnjs.com/) -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
+<script src="https://kit.fontawesome.com/7dbffb3e7f.js" crossorigin="anonymous"></script>
+  </head>
+
+
+
+<body>
+
+<div id="home">
+
+<script src="/javascripts/home.js" defer></script>
+
+<!-- This is Popup Where All Task Details Can Be Seen and New Task is Made -->
+
+<div class = "popup-container" v-bind:class = "{'off' : !board}">
+
+  <div class = "popup">
+
+    <button v-on:click="closeTask">Close</button>
+
+    <div id = "title" >{{ taskTitle }}</div>
+    <h3>Description</h3>
+    <div id = "des">{{ taskDescription }}</div>
+    <h3>Due Day</h3>
+    <div id = "dueday">{{ opendueday }}</div>
+    <h3>Assigned To</h3>
+    <div id = "assgined" v-for = "element in assignedUsers">{{element.first_name +' '+ element.last_name}}</div>
+
+
+<div id = "admin" class = "admin-popup" v-bind:class = "{'off' : !showAdmin}">
+
+    <h3>Type of Task</h3>
+    <select name="task_types" id="task_types"  v-model = "Tselected">
+    <option v-for = "element in types" v-bind:value = "element.id">{{element.typeTitle}}</option>
+    </select>
+
+    <button v-on:click = "findUsers">Find Users</button>
+    <h3>Assigned To</h3>
+    <select name="users" id="users" v-model:value = "Uselected">
+    <option v-for = "element in Ausers" v-bind:value = "element.id">{{element.first_name +' '+element.last_name}} </option>
+    </select>
+    <button v-on:click = "assignTask">Assign</button>
+
+
+
+</div> <!-- admin-->
+
+    </div>
+
+</div>
+
+
+<!-- The Main Menu -->
+
+    <div class = "menu">
+    <p>{{ user.first_name +' '+user.last_name }}</p>
+
+
+    <i class="fas fa-cog" v-on:click= "openSettings"></i>
+
+    <button v-on:click = "getUserTasks" v-bind:class = "{'off' : showAdmin}">Get My Tasks</button>
+    <button v-on:click = "getAllTasks">Get All Tasks</button>
+
+    <button v-on:click = "logout">Logout</button>
+    </div>
+
+
+
+
+<!-- The Main Board Itself -->
+
+<div id = "board" class = "board">
+
+  <div id ="todo" class = "card_container">
+
+    <h1>To-Do</h1>
+    <h2>{{todoCount}}</h2>
+
+    <div class ="card" v-bind:class = "{'off' : !showAdmin}">
+    <h1>Create A New Task</h1>
+    <input v-model = "newTaskTitle" placeholder ="Enter Title">
+		<input id = "todo" v-model = "newTaskDes" placeholder ="Enter Description">
+    <h4>Select a Due Day</h4>
+		<select name="days" id="days"  v-model:value = "Dselected" >
+    <option v-for = "element in days">{{element.day}}</option>
+    </select>
+		<button id ="todo" class = "newtask" v-on:click="createTask">Create Task</button>
+		</div>
+
+    <draggable :list="todo" v-on:change = "dragTodo" group = "tasks">
+
+    <div class="card" v-on:click.self  = "openTask(element.title, element.info,element.id, element.due_day)" v-for = "element in todo" group  = "tasks"> <!--onclick.self only activates when card is clicked not the child button -->
+		<h1 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">{{ element.title }}</h1>
+		<h4 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">{{ element.info }}</h4>
+    <h4 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">Due:  {{ element.due_day }}</h4>
+
+		<button v-on:click="startTask(element.id)">Start</button>
+		</div>
+
+    </draggable>
+
+
+
+  </div>
+
+
+ <div id = "doing" class = "card_container">
+
+    <h1> Doing </h1>
+   <h2>{{doingCount}}</h2>
+
+    <draggable :list = "doing" v-on:change = "dragDoing" group = "tasks">
+    <div class="card" v-on:click.self  = "openTask(element.title, element.info, element.id, element.due_day)" v-for = "element in doing">
+	  <h1 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">{{ element.title }}</h1>
+		<h4 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">{{ element.info }}</h4>
+    <h4 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">Due:  {{ element.due_day }}</h4>
+		<button v-on:click= "finishTask(element.id)">Finish Task</button>
+		</div>
+
+		</draggable>
+
+  </div>
+
+
+
+  <div id = "done" class = "card_container">
+
+
+
+   <h1> Done </h1>
+   <h2>{{doneCount}}</h2>
+   <draggable :list = "done" v-on:change = "dragDone" group = "tasks">
+
+   <div class="card" v-on:click.self  = "openTask(element.title, element.info, element.id, element.due_day)" v-for = "element in done">
+   <h1 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">{{ element.title }}</h1>
+		<h4 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">{{ element.info }}</h4>
+    <h4 v-on:click  = "openTask(element.title, element.info,  element.id, element.due_day)">Due:  {{ element.due_day }}</h4>
+
+    <div v-bind:class = "{'off' : !showAdmin}">
+	  <button v-on:click="deleteTask(element.id)">Delete</button>
+    </div>
+
+   </div>
+   </draggable>
+
+	</div>
+
+</div>
+
+<!--- SETTINGS -->
+
+
+
+
+
+
+
+<div class = "settingsCon" v-bind:class = "{'off' : !sboard}">
+
+
+<div class = "sboard" >
+
+    <label>Settings</label>
+    <button class = "settings" id = "close" v-on:click="closeSettings">Close</button>
+
+    <h1>Hi {{user.first_name }}, change your personal settings on this menu.</h1>
+
+    <div class = "avail">
+
+
+    <div id = "settingFName">
+    <h1>You will need to login again to have the changes take place</h1>
+    <h1>First Name</h1>
+    <input placeholder = "Name" v-model:value="fnameHolder">
+    <button v-on:click = "changeFirstname">Update Name</button>
+    </div>
+
+    <div id = "settingLName">
+    <h1>Last Name</h1>
+    <input placeholder = "Your Last Name" v-model:value="lnameHolder">
+    <button v-on:click = "changeLastname">Update Name</button>
+    </div>
+
+
+    <div id = "settingEmail">
+    <h1>Email</h1>
+
+    <input placeholder = "Email" v-model:value="emailHolder">
+     <button v-on:click = "changeEmail">Update Email</button>
+    </div>
+
+    <div id = "settingUsername">
+    <h1>Username</h1>
+    <input placeholder = "Username" v-model:value="usernameHolder">
+    <button v-on:click = "changeUsername">Update User</button>
+    </div>
+
+  </div>
+
+  <div class = "avail" id = "avail">
+    <h1>Last 15 Events:</h1>
+    <div>
+    <ul>
+    <li v-for = "element in allEvents">{{element.event}}</li>
+    </ul>
+    </div>
+</div>
+
+<div class = "avail" id = "avail">
+
+    <h1>Availability</h1>
+    <div>
+    <p v-for = "element in userAvail">{{element.day_avail}}</p>
+    </div>
+
+	  <select name="days" id="days"  v-model:value = "Dselected" >
+    <option v-for = "element in days">{{element.day}}</option>
+    </select>
+
+   <div class = "button_container">
+    <button  v-on:click = "addAvail">Add</button>
+    <button  v-on:click = "delAvail">Remove</button>
+</div>
+
+</div>
+
+
+<div class = "avail">
+
+  <h1>Task Preferences</h1>
+<div>
+  <p v-for = "element in userPref">{{element.typeTitle}}</p>
+</div>
+
+  <select name="task_types" id="task-types"  v-model:value = "Pselected" >
+    <option v-for = "element in types" v-bind:value = "element.id">{{element.typeTitle}}</option>
+  </select>
+
+<div class = "button_container">
+    <button style= "display:inline" v-on:click = "addPref">Add</button>
+    <button style= "display:inline" v-on:click = "delPref">Remove</button>
+</div>
+
+  </div>
+
+
+
+<div class = "avail" v-bind:class = "{'off' : !showAdmin}">
+  <h1>Create Task Type</h1>
+  <div id = "task-types">
+  <p v-for = "element in types" v-bind:value = "element.id">{{element.typeTitle}}</p>
+
+  <div class = "button_container">
+  <input class = "createpref" id = "tasktype" v-model:value="temptype">
+  <button class = "creatpref" v-on:click = "uploadType">Add</button>
+ </div>
+</div>
+
+</div>
+
+
+<div class = "avail" v-bind:class = "{'off' : !showAdmin}">
+
+  <h1>Remove Task Type</h1>
+  <div id = "task-types">
+
+  <select name="task_types" id="task-types"  v-model:value = "Pdselected" >
+    <option v-for = "element in types" v-bind:value = "element.id">{{element.typeTitle}}</option>
+  </select>
+
+ <div class = "button_container">
+  <button class = "creatpref" v-on:click = "deleteType">Delete</button>
+  </div>
+
+</div>
+</div>
+
+
+
+</div>
+
+
+
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+</body>
+
+</html>

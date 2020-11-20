@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!--need this for bootstrap but doesn't pass W3c validation-->
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>Login Page</title>
+
+    <!-- Required Stylesheets -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400&display=swap"
+    rel="stylesheet">
+
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"
+    />
+
+   <link
+      type="text/css"
+      rel="stylesheet"
+      href="stylesheets/style.css"
+    />
+
+
+    <!-- Required scripts -->
+    <script src="https://unpkg.com/vue@latest/dist/vue.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+
+
+  </head>
+
+  <body>
+
+      <div id = "login" >
+
+      <div class = "form" v-bind:class = "{'off' : signup}">
+
+
+        <h1>Login</h1>
+
+        <div>
+        <h2>
+          Username
+        </h2>
+        <input v-model = "username" placeholder ="Enter Username">
+        <h2>
+          Password
+        </h2>
+         	<input v-model = "password" placeholder ="Enter Password" type = "password">
+        </div>
+
+         <button v-on:click = "authUser()">Log In</button>
+
+
+         <div><button v-on:click = "switchtoSignUp">Sign Up Instead</button></div>
+
+      </div>
+
+
+
+ <div id = "signup" class = "form" v-bind:class = "{'off' : !signup}">
+
+        <h1>Sign Up</h1>
+
+
+        <h2>Username</h2>
+        <input v-model = "username" placeholder ="Enter Username">
+
+        <h2>First Name </h2>
+        <input v-model = "first_name" placeholder ="Enter First name">
+
+        <h2>Last Name</h2>
+         <input v-model = "last_name" placeholder ="Enter Last name">
+
+        <h2>Email</h2>
+        <input v-model = "email" placeholder ="Enter Email">
+
+        <h2>Password</h2>
+        <input v-model = "password" placeholder ="Enter Password" type = "password">
+
+
+        <h2>Admin</h2>
+        <select name="admin_op" id="admin_op"  v-model = "admin">
+        <option v-for = "element in adminOp" v-bind:value = "element.id">{{element.option}}</option>
+        </select>
+
+      <div>
+       <button v-on:click = "createAcc()">Sign Up</button>
+      </div>
+
+      <div>
+      <button v-on:click = "switchtoLogIn">Log In Instead</button></div>
+      </div>
+
+</div>
+
+
+
+
+
+
+       <script src="/javascripts/login.js" defer> </script>
+
+
+
+
+  </body>
+
+</html>
